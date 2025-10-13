@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:v1
+    build:
+      context: ./mariadb
+      dockerfile: Dockerfile
+    container_name: mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${WP_DB_NAME}
+      MYSQL_USER: ${WP_DB_USER}
+      MYSQL_PASSWORD_FILE: ${WP_DB_PASSWORD_FILE}
+      MYSQL_ROOT_PASSWORD_FILE: ${MARIADB_ROOT_PASSWORD_FILE}
+    volumes:
+      - /home/${HOST_LOGIN}/data/db_data:/var/lib/mysql
+    networks:
+      - wp_network
+    secrets:
+      - mariadb_root_password
+      - wp_db_password
+
+  wordpress:
+    image: wordpress:v1
+    build:
+      context: ./wordpress
+      dockerfile: Dockerfile
+    container_name: wordpress
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+    environment:
+      WORDPRESS_DB_HOST: mariadb:3306
+      WORDPRESS_DB_USER: ${WP_DB_USER}
+      WORDPRESS_DB_NAME: ${WP_DB_NAME}
+      WORDPRESS_DB_PASSWORD_FILE: ${WP_DB_PASSWORD_FILE}
+      WORDPRESS_TABLE_PREFIX: wp_
+      WORDPRESS_ADMIN_USER: ${WP_ADMIN_USER}
+      WORDPRESS_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
+      WP_SITE_DOMAIN: ${DOMAIN}
+    volumes:
+      - /home/${HOST_LOGIN}/data/wp_files:/var/www/html
+    networks:
+      - wp_network
+    secrets:
+      - wp_db_password
+      - wp_admin_password
+
+  nginx:
+    image: nginx:v1
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    restart: unless-stopped
+    depends_on:
+      - wordpress
+    ports:
+      - "443:443"
+    volumes:
+      - /home/${HOST_LOGIN}/data/wp_files:/var/www/html:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    networks:
+      - wp_network
+
+networks:
+  wp_network:
+    driver: bridge
+
+secrets:
+  mariadb_root_password:
+    file: /home/${HOST_LOGIN}/data/secrets/mariadb_root_password
+  wp_db_password:
+    file: /home/${HOST_LOGIN}/data/secrets/wp_db_password
+  wp_admin_password:
+    file: /home/${HOST_LOGIN}/data/secrets/wp_admin_password
