@@ -35,11 +35,6 @@ services:
       - wp_data:/var/www/html
     networks:
       - inception
-    healthcheck:
-      test: ["CMD", "php-fpm8.2", "-t"]   # or check if port 9000 is listening
-      interval: 5s
-      retries: 10
-      start_period: 10s
     restart: always
 
   nginx:
@@ -51,8 +46,7 @@ services:
     ports:
       - "443:443"
     depends_on:
-      wordpress:
-        condition: service_healthy
+      - wordpress
     volumes:
       - wp_data:/var/www/html
     networks:

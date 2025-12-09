@@ -2,7 +2,7 @@ FROM debian:bookworm-slim
 
 # Install nginx + openssl
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    nginx openssl \
+    nginx openssl curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -19,5 +19,9 @@ RUN openssl req -x509 -nodes -days 365 \
 # Copy config
 COPY conf/nginx.conf /etc/nginx/nginx.conf
 
-# Foreground mode for PID1
-CMD ["nginx", "-g", "daemon off;"]
+# Copy the script into container
+COPY tools/nginx-init.sh /usr/local/bin/nginx-init.sh
+RUN chmod +x /usr/local/bin/nginx-init.sh
+
+# Use script as entrypoint
+ENTRYPOINT ["/usr/local/bin/nginx-init.sh"]
