@@ -47,8 +47,10 @@ services:
       - "443:443"
     depends_on:
       - wordpress
+      - static-site
     volumes:
       - wp_data:/var/www/html
+      - static_site:/var/www/public
     networks:
       - inception
     restart: always
@@ -81,6 +83,15 @@ services:
     depends_on:
       - wordpress
 
+  static-site:
+    build: ./requirements/static-site
+    container_name: static_site
+    volumes:
+      - static_site:/var/www/public
+    networks:
+      - inception
+    restart: always
+
 volumes:
   wp_data:
     driver: local
@@ -100,6 +111,12 @@ volumes:
       type: none
       o: bind
       device: /home/${LOGIN}/data/redis
+  static_site:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/${LOGIN}/data/static_site
 
 networks:
   inception:
