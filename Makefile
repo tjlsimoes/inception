@@ -4,7 +4,7 @@ DC      := docker compose -f srcs/docker-compose.yml
 all: up
 
 up:
-	mkdir -p /home/$(LOGIN)/data/wordpress /home/$(LOGIN)/data/mariadb
+	mkdir -p /home/$(LOGIN)/data/wordpress /home/$(LOGIN)/data/mariadb /home/$(LOGIN)/data/redis
 	$(DC) up -d --build
 
 down:

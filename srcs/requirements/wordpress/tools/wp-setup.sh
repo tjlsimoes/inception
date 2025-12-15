@@ -18,12 +18,28 @@ generate_wp_config() {
         echo "Generating wp-config.php..."
         cp wp-config-sample.php wp-config.php
 
+        # Existing DB replacements
         sed -i "s/database_name_here/${MYSQL_DATABASE}/" wp-config.php
         sed -i "s/username_here/${MYSQL_USER}/" wp-config.php
         sed -i "s/password_here/${MYSQL_PASSWORD}/" wp-config.php
         sed -i "s/localhost/${MYSQL_HOST}/" wp-config.php
+
+        # Add Redis configuration constants
+        sed -i "/\/\* That's all, stop editing! Happy publishing. \*\//i \
+define( 'WP_REDIS_HOST', 'redis' );\n\
+define( 'WP_REDIS_PORT', 6379 );\n\
+define( 'WP_REDIS_TIMEOUT', 1 );\n\
+define( 'WP_REDIS_READ_TIMEOUT', 1 );\n\
+define( 'WP_REDIS_DATABASE', 0 );\n\
+define( 'WP_REDIS_PREFIX', '${DOMAIN_NAME}:' );\n\
+" wp-config.php
+
+        sed -i "/\/\* That's all, stop editing! \*\//i \
+// Redis Object Cache configuration (added automatically)\n\
+" wp-config.php
     fi
 }
+
 
 wait_for_db() {
     echo "Waiting for MariaDB (${MYSQL_HOST})..."
@@ -66,6 +82,17 @@ install_wp() {
             --path="/var/www/html"
 
         touch /var/www/html/.wp-installed
+
+        echo "Installing and enabling Redis Object Cache plugin..."
+
+        # Install the plugin (downloads from wordpress.org if not present)
+        wp plugin install redis-cache --activate --allow-root
+
+        # Enable the object cache drop-in
+        wp redis enable --allow-root
+
+        # Verify status
+        wp redis status --allow-root
     fi
 }
 
