@@ -92,6 +92,15 @@ services:
       - inception
     restart: always
 
+  adminer:
+    build: ./requirements/adminer
+    container_name: adminer
+    networks:
+      - inception
+    restart: always
+    depends_on:
+      - mariadb
+
 volumes:
   wp_data:
     driver: local
