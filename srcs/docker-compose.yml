@@ -101,6 +101,20 @@ services:
     depends_on:
       - mariadb
 
+
+  portainer:
+    build: ./requirements/portainer
+    container_name: portainer
+    env_file: .env
+    environment:
+    - PORTAINER_ADMIN_PASSWORD=${PORTAINER_ADMIN_PASSWORD}
+    networks:
+      - inception
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer_data:/data
+    restart: always
+
 volumes:
   wp_data:
     driver: local
@@ -126,7 +140,12 @@ volumes:
       type: none
       o: bind
       device: /home/${LOGIN}/data/static_site
-
+  portainer_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/${LOGIN}/data/portainer
 networks:
   inception:
     driver: bridge
