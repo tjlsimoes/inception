@@ -23,4 +23,7 @@ fclean: clean
 	docker system prune -af --volumes
 	echo "To clean up /etc/hosts entries, run: sudo srcs/tools/cleanup-hosts.sh"
 
+reset-data:
+    sudo rm -rf /home/$(LOGIN)/data/*
+
 .PHONY: all up down re clean fclean
