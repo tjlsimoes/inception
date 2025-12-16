@@ -15,6 +15,12 @@ services:
     networks:
       - inception
     restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   wordpress:
     build: ./requirements/wordpress
@@ -36,6 +42,12 @@ services:
     networks:
       - inception
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping REQUEST_METHOD=GET cgi-fcgi -bind -connect localhost:9000 | grep -q pong || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
 
   nginx:
     build: ./requirements/nginx
@@ -54,6 +66,12 @@ services:
     networks:
       - inception
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -k https://localhost:443/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
   redis:
     build: ./requirements/redis
@@ -63,7 +81,12 @@ services:
     networks:
       - inception
     restart: always
-
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "healthcheck_counter"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
   ftp:
     build: ./requirements/ftp
@@ -82,6 +105,12 @@ services:
     restart: always
     depends_on:
       - wordpress
+    healthcheck:
+      test: ["CMD-SHELL", "bin/bash", "-c", "2>/dev/null echo >/dev/tcp/127.0.0.1/22 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   static-site:
     build: ./requirements/static-site
@@ -91,6 +120,12 @@ services:
     networks:
       - inception
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "test -d /var/www/public && test -r /var/www/public"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   adminer:
     build: ./requirements/adminer
@@ -100,7 +135,12 @@ services:
     restart: always
     depends_on:
       - mariadb
-
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/ || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
 
   portainer:
     build: ./requirements/portainer
@@ -114,6 +154,12 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - portainer_data:/data
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -k https://localhost:9443/ || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
 volumes:
   wp_data:

@@ -101,6 +101,9 @@ wait_for_db
 install_wp
 
 sed -i 's|^listen = .*|listen = 0.0.0.0:9000|' /etc/php/8.2/fpm/pool.d/www.conf
+sed -i 's|^;pm.status_path = .*|pm.status_path = /status|' /etc/php/8.2/fpm/pool.d/www.conf
+sed -i 's|^;ping.path = .*|ping.path = /ping|' /etc/php/8.2/fpm/pool.d/www.conf
+sed -i 's|^;ping.response = .*|ping.response = pong|' /etc/php/8.2/fpm/pool.d/www.conf
 
 echo "Starting php-fpm..."
 exec php-fpm8.2 -F

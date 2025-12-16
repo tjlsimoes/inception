@@ -4,7 +4,7 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     php-fpm php-mysql php-cli php-curl php-gd php-mbstring php-xml php-zip \
     php-intl php-soap php-bcmath php-redis \
-    curl tar ca-certificates \
+    curl tar ca-certificates libfcgi-bin \
     && update-ca-certificates \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
