@@ -1,7 +1,11 @@
 LOGIN   := tjorge-l
 DC      := docker compose -f srcs/docker-compose.yml
 
-all: up
+all: setup up
+
+setup:
+	echo "Setting up hosts file..."
+	sudo srcs/tools/setup-hosts.sh
 
 up:
 	mkdir -p /home/$(LOGIN)/data/wordpress /home/$(LOGIN)/data/mariadb /home/$(LOGIN)/data/redis /home/$(LOGIN)/data/static_site /home/${LOGIN}/data/portainer
@@ -17,5 +21,6 @@ clean: down
 
 fclean: clean
 	docker system prune -af --volumes
+	echo "To clean up /etc/hosts entries, run: sudo srcs/tools/cleanup-hosts.sh"
 
 .PHONY: all up down re clean fclean
