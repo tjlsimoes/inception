@@ -114,14 +114,15 @@ services:
 
   static-site:
     build: ./requirements/static-site
+    image: static-site:1.0
     container_name: static_site
     volumes:
-      - static_site:/var/www/public
+      - static_site:/var/www/portfolio/public
     networks:
       - inception
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "test -d /var/www/public && test -r /var/www/public"]
+      test: ["CMD-SHELL", "test -d /var/www/portfolio/public && test -r /var/www/portfolio/public"]
       interval: 30s
       timeout: 10s
       retries: 3
