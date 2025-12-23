@@ -9,6 +9,9 @@ set -e
 : "${MYSQL_PASSWORD:?Missing MYSQL_PASSWORD}"
 : "${MYSQL_EMAIL:?Missing MYSQL_EMAIL}"
 : "${DOMAIN_NAME:?Missing DOMAIN_NAME}"
+: "${WP_SECONDARY_USER:?Missing WP_SECONDARY_USER}"
+: "${WP_SECONDARY_USER_PASSWORD:?Missing WP_SECONDARY_USER_PASSWORD}"
+: "${WP_SECONDARY_USER_EMAIL:?Missing WP_SECONDARY_USER_EMAIL}"
 MYSQL_HOST="${MYSQL_HOST:-mariadb}"
 
 cd /var/www/html
@@ -42,6 +45,10 @@ define( 'WP_REDIS_PREFIX', '${DOMAIN_NAME}:' );\n\
 
 
 wait_for_db() {
+
+    TIMEOUT=${WAIT_TIMEOUT:-60}  # seconds
+    INTERVAL=2                    # seconds per check
+    ELAPSED=0
     echo "Waiting for MariaDB (${MYSQL_HOST})..."
     while true; do
         php <<PHP
@@ -59,7 +66,13 @@ PHP
             echo "MariaDB is ready!"
             break
         fi
-        sleep 2
+
+        if [ "$ELAPSED" -ge "$TIMEOUT" ]; then
+        echo "ERROR: WordPress not reachable after $TIMEOUT seconds."
+        exit 1
+        fi
+        sleep $INTERVAL
+        ELAPSED=$((ELAPSED + INTERVAL))
     done
 }
 
@@ -78,6 +91,14 @@ install_wp() {
             --admin_password="${MYSQL_PASSWORD}" \
             --admin_email="${MYSQL_EMAIL}" \
             --skip-email \
+            --allow-root \
+            --path="/var/www/html"
+
+        echo "Creating secondary WordPress user..."
+        wp user create "${WP_SECONDARY_USER}" "${WP_SECONDARY_USER_EMAIL}" \
+            --role=subscriber \
+            --user_pass="${WP_SECONDARY_USER_PASSWORD}" \
+            --display_name="${WP_SECONDARY_USER}" \
             --allow-root \
             --path="/var/www/html"
 

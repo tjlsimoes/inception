@@ -25,7 +25,6 @@ COPY tools/mariadb-init.sh /usr/local/bin/mariadb-init.sh
 RUN chmod +x /usr/local/bin/mariadb-init.sh
 
 # Expose port 3306 (default MariaDB port)
-# This doesn't publish the port, just documents it
 EXPOSE 3306
 
 # Set the entrypoint script
