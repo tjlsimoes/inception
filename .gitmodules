@@ -1,0 +1,4 @@
+[submodule "srcs/requirements/static-site/portfolio"]
+	path = srcs/requirements/static-site/portfolio
+	url = git@github.com:tjlsimoes/portfolio.git
+	branch = inception
