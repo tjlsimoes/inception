@@ -5,21 +5,26 @@ services:
     container_name: mariadb
     env_file: .env
     environment:
-    - MYSQL_DATABASE=${MYSQL_DATABASE}
-    - MYSQL_USER=${MYSQL_USER}
-    - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    - MYSQL_DATABASE_FILE=/run/secrets/mysql_database
+    - MYSQL_USER_FILE=/run/secrets/mysql_user
+    - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
+    - MYSQL_PASSWORD_FILE=/run/secrets/mysql_password
     volumes:
       - db_data:/var/lib/mysql
     networks:
       - inception
     restart: always
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=$(cat /run/secrets/mysql_root_password)"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
+    secrets:
+      - mysql_database
+      - mysql_user
+      - mysql_root_password
+      - mysql_password
 
   wordpress:
     build: ./requirements/wordpress
@@ -27,15 +32,15 @@ services:
     container_name: wordpress
     env_file: .env
     environment:
-    - MYSQL_HOST=mariadb
-    - MYSQL_DATABASE=${MYSQL_DATABASE}
-    - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-    - MYSQL_USER=${MYSQL_USER}
-    - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    - MYSQL_EMAIL=${MYSQL_EMAIL}
-    - WP_SECONDARY_USER=${WP_SECONDARY_USER}
-    - WP_SECONDARY_USER_EMAIL=${WP_SECONDARY_USER_EMAIL}
-    - WP_SECONDARY_USER_PASSWORD=${WP_SECONDARY_USER_PASSWORD}
+      - MYSQL_HOST=mariadb
+      - DOMAIN_NAME=${DOMAIN_NAME}
+      - MYSQL_DATABASE_FILE=/run/secrets/mysql_database
+      - MYSQL_USER_FILE=/run/secrets/mysql_user
+      - MYSQL_PASSWORD_FILE=/run/secrets/mysql_password
+      - MYSQL_EMAIL_FILE=/run/secrets/mysql_email
+      - WP_SECONDARY_USER_FILE=/run/secrets/wp_secondary_user
+      - WP_SECONDARY_USER_EMAIL_FILE=/run/secrets/wp_secondary_user_email
+      - WP_SECONDARY_USER_PASSWORD_FILE=/run/secrets/wp_secondary_user_password
     depends_on:
       - mariadb
     volumes:
@@ -49,6 +54,14 @@ services:
       timeout: 5s
       retries: 3
       start_period: 60s
+    secrets:
+      - mysql_database
+      - mysql_user
+      - mysql_password
+      - mysql_email
+      - wp_secondary_user
+      - wp_secondary_user_email
+      - wp_secondary_user_password
 
   nginx:
     build: ./requirements/nginx
@@ -97,8 +110,8 @@ services:
     container_name: ftp
     env_file: .env
     environment:
-    - FTP_USER=${FTP_USER}
-    - FTP_PASS=${FTP_PASS}
+    - FTP_USER_FILE=/run/secrets/ftp_user
+    - FTP_PASS_FILE=/run/secrets/ftp_password
     ports:
       - "21:21"                  # Command port
       - "40000-40099:40000-40099"  # Passive ports (match CMD flag)
@@ -115,6 +128,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    secrets:
+      - ftp_user
+      - ftp_password
 
   static-site:
     build: ./requirements/static-site
@@ -154,7 +170,7 @@ services:
     container_name: portainer
     env_file: .env
     environment:
-    - PORTAINER_ADMIN_PASSWORD=${PORTAINER_ADMIN_PASSWORD}
+    - PORTAINER_ADMIN_PASSWORD_FILE=/run/secrets/portainer_admin_password
     networks:
       - inception
     volumes:
@@ -167,6 +183,8 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+    secrets:
+      - portainer_admin_password
 
 volumes:
   wp_data:
@@ -203,3 +221,27 @@ networks:
   inception:
     name: inception
     driver: bridge
+
+secrets:
+  mysql_database:
+    file: ../secrets/mysql_database.txt
+  mysql_user:
+    file: ../secrets/mysql_user.txt
+  mysql_root_password:
+    file: ../secrets/mysql_root_password.txt
+  mysql_password:
+    file: ../secrets/mysql_password.txt
+  mysql_email:
+    file: ../secrets/mysql_email.txt
+  wp_secondary_user:
+    file: ../secrets/wp_secondary_user.txt
+  wp_secondary_user_email:
+    file: ../secrets/wp_secondary_user_email.txt
+  wp_secondary_user_password:
+    file: ../secrets/wp_secondary_user_password.txt
+  ftp_user:
+    file: ../secrets/ftp_user.txt
+  ftp_password:
+    file: ../secrets/ftp_password.txt
+  portainer_admin_password:
+    file: ../secrets/portainer_admin_password.txt

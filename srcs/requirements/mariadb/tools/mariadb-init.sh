@@ -3,8 +3,30 @@
 set -e
 # Define the data directory where MariaDB stores its databases
 DATA_DIR="/var/lib/mysql"
+
 echo "Starting MariaDB setup..."
-# Verify all required environment variables are set
+
+# Helper function to load value from _FILE if present
+load_if_file() {
+    local var_name="$1"
+    local file_var="${var_name}_FILE"
+    if [ -n "${!file_var:-}" ] && [ -f "${!file_var}" ]; then
+        # Read file, trim whitespace/newlines
+        export "$var_name"=$(cat "${!file_var}" | tr -d '\r\n\t ')
+        echo "Loaded $var_name from file secret."
+    fi
+}
+
+# ${!file_var:-} → The :- part means: if the variable is unset or empty, substitute an empty string (so [ -n ... ] will be false).
+# [ -n "${!file_var:-}" ] → Checks whether the _FILE variable is set and non-empty.
+# [ -f "${!file_var}" ] → Checks whether the path stored in that variable actually points to an existing regular file.
+
+# Load secrets from files if _FILE env vars are set
+load_if_file "MYSQL_ROOT_PASSWORD"
+load_if_file "MYSQL_PASSWORD"
+load_if_file "MYSQL_DATABASE"
+load_if_file "MYSQL_USER"
+
 if [ -z "$MYSQL_ROOT_PASSWORD" ]; then
     echo "ERROR: MYSQL_ROOT_PASSWORD is not set!"
     exit 1

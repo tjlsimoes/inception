@@ -1,6 +1,23 @@
 #!/bin/bash
 set -e
 
+load_if_file() {
+    local var_name="$1"
+    local file_var="${var_name}_FILE"
+
+    if [ -n "${!file_var:-}" ] && [ -f "${!file_var}" ]; then
+        # Read and trim whitespace/newlines/tabs/carriage returns
+        export "$var_name"=$(cat "${!file_var}" | tr -d '\r\n\t ')
+        echo "Loaded $var_name from secret file."
+    fi
+}
+
+echo "Loading configuration from environment and/or secrets..."
+
+# Load ALL variables that support _FILE
+load_if_file "FTP_USER"
+load_if_file "FTP_PASS"
+
 # Check required environment variables
 if [ -z "$FTP_USER" ] || [ -z "$FTP_PASS" ]; then
     echo "Error: FTP_USER and FTP_PASS must be set"

@@ -1,18 +1,43 @@
 #!/bin/bash
 set -e
 
-# Required env vars
-: "${MYSQL_DATABASE:?Missing MYSQL_DATABASE}"
-: "${MYSQL_USER:?Missing MYSQL_USER}"
-: "${MYSQL_PASSWORD:?Missing MYSQL_PASSWORD}"
-: "${MYSQL_USER:?Missing MYSQL_USER}"
-: "${MYSQL_PASSWORD:?Missing MYSQL_PASSWORD}"
-: "${MYSQL_EMAIL:?Missing MYSQL_EMAIL}"
-: "${DOMAIN_NAME:?Missing DOMAIN_NAME}"
-: "${WP_SECONDARY_USER:?Missing WP_SECONDARY_USER}"
-: "${WP_SECONDARY_USER_PASSWORD:?Missing WP_SECONDARY_USER_PASSWORD}"
-: "${WP_SECONDARY_USER_EMAIL:?Missing WP_SECONDARY_USER_EMAIL}"
+# Helper function to load from secret file if _FILE is provided
+load_if_file() {
+    local var_name="$1"
+    local file_var="${var_name}_FILE"
+
+    if [ -n "${!file_var:-}" ] && [ -f "${!file_var}" ]; then
+        # Read and trim whitespace/newlines/tabs/carriage returns
+        export "$var_name"=$(cat "${!file_var}" | tr -d '\r\n\t ')
+        echo "Loaded $var_name from secret file."
+    fi
+}
+
+echo "Loading configuration from environment and/or secrets..."
+
+# Load ALL variables that support _FILE
+load_if_file "MYSQL_HOST"
+load_if_file "MYSQL_DATABASE"
+load_if_file "MYSQL_USER"
+load_if_file "MYSQL_PASSWORD"
+load_if_file "MYSQL_EMAIL"
+load_if_file "DOMAIN_NAME"
+load_if_file "WP_SECONDARY_USER"
+load_if_file "WP_SECONDARY_USER_EMAIL"
+load_if_file "WP_SECONDARY_USER_PASSWORD"
+
+# Set defaults
 MYSQL_HOST="${MYSQL_HOST:-mariadb}"
+
+# Required checks (now support secrets)
+: "${MYSQL_DATABASE:?Missing MYSQL_DATABASE (or MYSQL_DATABASE_FILE)}"
+: "${MYSQL_USER:?Missing MYSQL_USER (or MYSQL_USER_FILE)}"
+: "${MYSQL_PASSWORD:?Missing MYSQL_PASSWORD (or MYSQL_PASSWORD_FILE)}"
+: "${MYSQL_EMAIL:?Missing MYSQL_EMAIL (or MYSQL_EMAIL_FILE)}"
+: "${DOMAIN_NAME:?Missing DOMAIN_NAME (or DOMAIN_NAME_FILE)}"
+: "${WP_SECONDARY_USER:?Missing WP_SECONDARY_USER (or WP_SECONDARY_USER_FILE)}"
+: "${WP_SECONDARY_USER_PASSWORD:?Missing WP_SECONDARY_USER_PASSWORD (or WP_SECONDARY_USER_PASSWORD_FILE)}"
+: "${WP_SECONDARY_USER_EMAIL:?Missing WP_SECONDARY_USER_EMAIL (or WP_SECONDARY_USER_EMAIL_FILE)}"
 
 cd /var/www/html
 
