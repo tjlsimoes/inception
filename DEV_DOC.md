@@ -5,7 +5,18 @@
     - SCP to transfer files into the Virtual Machine.
     - Git Clone into the Virtual Machine.
     - Create a Shared Folder with the Virtual Machine.
-3. Rename ```srcs/.env_mock``` to ```srcs/.env``` and fill out with desired values.
+3. Rename ```srcs/.env_mock``` to ```srcs/.env``` and fill out with desired values. Create all the necessary secret files under  a directory at the root of the project named ```secrets```. The files ought to be named (see more information on [managing credentials](./USER_DOC.md#where-are-all-the-credentials-defined)):
+- ftp_password.txt
+- mysql_user.txt
+- ftp_user.txt
+- portainer_admin_password.txt
+- mysql_database.txt
+- wp_secondary_user_email.txt
+- mysql_email.txt
+- wp_secondary_user_password.txt
+- mysql_password.txt
+- wp_secondary_user.txt
+- mysql_root_password.txt
 
 
 ### How do I build and launch the project?
