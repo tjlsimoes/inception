@@ -12,10 +12,8 @@ RUN wget https://github.com/gohugoio/hugo/releases/download/v0.153.2/hugo_extend
     && dpkg -i hugo_extended_0.153.2_linux-amd64.deb \
     && rm hugo_extended_0.153.2_linux-amd64.deb
 
-# Create directory for public files
-RUN mkdir -p /var/www/public
+RUN mkdir -p /var/www/portfolio
 
-# Copy public website files
 COPY portfolio/ /var/www/portfolio/
 
 # Copy entrypoint script

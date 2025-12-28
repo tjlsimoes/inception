@@ -123,7 +123,7 @@ services:
     depends_on:
       - wordpress
     healthcheck:
-      test: ["CMD-SHELL", "bin/bash", "-c", "2>/dev/null echo >/dev/tcp/127.0.0.1/22 || exit 1"]
+      test: ["CMD-SHELL", "bin/bash", "-c", "2>/dev/null echo >/dev/tcp/127.0.0.1/21 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
