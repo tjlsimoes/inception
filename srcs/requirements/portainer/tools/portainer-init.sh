@@ -6,7 +6,6 @@ load_if_file() {
     local file_var="${var_name}_FILE"
 
     if [ -n "${!file_var:-}" ] && [ -f "${!file_var}" ]; then
-        # Read and trim whitespace/newlines/tabs/carriage returns
         export "$var_name"=$(cat "${!file_var}" | tr -d '\r\n\t ')
         echo "Loaded $var_name from secret file."
     fi

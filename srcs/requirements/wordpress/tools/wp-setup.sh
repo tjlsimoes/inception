@@ -29,7 +29,7 @@ load_if_file "WP_SECONDARY_USER_PASSWORD"
 # Set defaults
 MYSQL_HOST="${MYSQL_HOST:-mariadb}"
 
-# Required checks (now support secrets)
+# Required checks
 : "${MYSQL_DATABASE:?Missing MYSQL_DATABASE (or MYSQL_DATABASE_FILE)}"
 : "${MYSQL_USER:?Missing MYSQL_USER (or MYSQL_USER_FILE)}"
 : "${MYSQL_PASSWORD:?Missing MYSQL_PASSWORD (or MYSQL_PASSWORD_FILE)}"

@@ -53,5 +53,4 @@ echo "FTP server configured successfully"
 echo "User: $FTP_USER"
 echo "Home directory: /var/www/html"
 
-# Execute vsftpd in foreground (replacing this process, becoming PID 1)
 exec /usr/sbin/vsftpd /etc/vsftpd.conf
