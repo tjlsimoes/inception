@@ -18,7 +18,7 @@ Services orchestrated:
 1. Configure a Ubuntu 22.04 LTS Virtual Machine.
 2. Install Docker and Docker Compose. 
 3. Clone this repository.
-4. Rename ```srcs/.env_mock``` to ```srcs/.env``` and fill out with desired values.
+4. Run ```make setup-env``` from the root of this repository to setup the necesary environemnt variables and secret files.
 5. Run ```make``` from the root of this repository.
 6. You're done! :)
 
@@ -132,8 +132,8 @@ AI was used at different stages in this project. First, to get an introduction o
 ### Can you give me an overview of this project?
 
 - ```Makefile``` to easily deploy or remove Docker containers through ```srcs/docker-compose.yml```.
-- ```srcs/docker-compose.yml```: Docker Compose file describing all services (containers), their networks, volumes, environment variables and dependencies.
-- ```srcs/tools/``` containing scripts to change host's ```/etc/hosts```.
+- ```srcs/docker-compose.yml```: Docker Compose file describing all services (containers), their networks, volumes, environment variables, secrets and dependencies.
+- ```srcs/tools/``` containing scripts to change host's ```/etc/hosts``` and programatiicaly setup the necessary secret files and environment variables.
 - ```.env_mock```: template ```.env``` file designed to store all necessary environment variables passed into Docker Containers through ```srcs/docker-compose.yml```.
 - Each services's folder under ```srcs/requirements```, for clarity and modularity, containing:
     - Dockerfile.
@@ -157,6 +157,6 @@ AI was used at different stages in this project. First, to get an introduction o
 
 ### Why use Environment Variables and not Secrets?
 
-- **Docker secrets** are designed especifically for sensitive data. But they're only available in Docker Swarm mode, stored encrypted at rest, mounted as in-memory files (tmpfs) inside containers and not exposed in environment variables or logs. Access is restricted to authorized services.
-- **Environment variables** (like those loaded from ```srcs/.env```), on the other hand, are a simple way to pass configuration to containers. They're convenient for non-sensitive data, but have security drawbacks: they can be visible in plaintext via ```docker inspect``` or container logs if mishandled.
+- **Environment variables** (set via environment or env_file) are injected directly into the container's environment. They are suitable for non-sensitive configuration (e.g., debug flags or ports) but risky for sensitive data like passwords or API keys, as they are visible in docker inspect, process listings (ps aux), and can accidentally leak into logs.
+- **Secrets**, however, are designed for sensitive data: they are mounted as temporary in-memory files (typically at /run/secrets/<secret_name>) rather than environment variables, reducing exposure to other processes and avoiding leaks in logs or inspections.
 

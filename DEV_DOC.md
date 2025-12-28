@@ -36,6 +36,10 @@
         - /home/$(LOGIN)/data/static_site
         - /home/${LOGIN}/data/portainer
 
+### Where can I find more information on the multiple services' configurations?
+
+[Here](https://common-pansy-255.notion.site/Inception-Services-2d7d125662db801699dbe06217f7a5ba?pvs=74)!
+
 ### Are there any Docker commands that I would be better off knowing?
 
 To access a container's bash shell: ```docker exec -it <container_name> bash ```
