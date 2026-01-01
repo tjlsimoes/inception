@@ -45,7 +45,6 @@
 To access a container's bash shell: ```docker exec -it <container_name> bash ```
 
 To check the logs of a container: ```docker logs <container_name>```  
-
 ---
 
 ```docker compose -f srcs/docker-compose.yml up -d --build```, part of ```make up```:
@@ -64,6 +63,22 @@ To check the logs of a container: ```docker logs <container_name>```
 ```docker volume rm $(docker volume ls -q) 2>/dev/null || true```, part of ```make clean```:
 - Remove **all** Docker volumes **on the system**
 - Note that Docker volumes removal does not delete the persisted volumes at ```/home/$(LOGIN)/data/*```. To do so you can run ```make reset-data``` from the root of the project. 
+
+
+---
+
+```make setup```, part of ```make all```
+- Configures the necessary entries on ```/etc/hosts``` for custom DNS resolution .
+
+---
+
+```make reset-data```
+- Deletes the persisted volumes on the host.
+
+---
+
+```make setup-env```
+- Adds the necessary .env and secrets' files from environment variables or default values.
 
 ---
 
