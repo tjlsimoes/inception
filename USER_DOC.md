@@ -41,34 +41,34 @@
 ### Where are all the credentials defined?
 
 - All credentials are defined on ```srcs/.env``` and under individual files under ```./secrets```.
-- You can create or manage the necessary credentials with the script ```./srcs/tools/setup-env.sh```. This uses environment variables or default values to setup the necessary configurations.
+- You can create or manage the necessary credentials with the script ```./srcs/tools/setup-env.sh```. This uses environment variables or prompts for user input to setup the necessary configurations.
 - You can run ```make setup-env``` **prior to any make** to setup the necessary configurations.
 - This is the list of environment variables you can specify to manage the necessary credentials:
 
-	- LOGIN e.g. tjorge-l
-	- DOMAIN_NAME e.g. tjorge-l.42.fr  
+	- LOGIN
+	- DOMAIN_NAME
 
 	--- 
 
-	- MYSQL_DATABASE e.g. inception_db
-	- MYSQL_ROOT_PASSWORD e.g. even_longer_root_password_42
-	- MYSQL_USER e.g. wp_user
-	- MYSQL_PASSWORD e.g. this_is_a_very_long_password_42
-	- MYSQL_EMAIL e.g. tjorge-l@gmail.com
+	- MYSQL_DATABASE
+	- MYSQL_ROOT_PASSWORD
+	- MYSQL_USER
+	- MYSQL_PASSWORD
+	- MYSQL_EMAIL
 
 	---
 
-	- WP_SECONDARY_USER e.g.commenter
-	- WP_SECONDARY_USER_EMAIL e.g. commenter@example.com
-	- WP_SECONDARY_USER_PASSWORD e.g. another_secure_pass456
+	- WP_SECONDARY_USER 
+	- WP_SECONDARY_USER_EMAIL
+	- WP_SECONDARY_USER_PASSWORD
 
 	---
 
-	- FTP_USER e.g. ftpuser
-	- FTP_PASS e.g. strongpasswordhere
+	- FTP_USER
+	- FTP_PASS
 
 	---
 	- *Portainer user is set to **admin***
-	- PORTAINER_ADMIN_PASSWORD e.g. YourSecurePassword123!
+	- PORTAINER_ADMIN_PASSWORD
 - It goes without saying that if you change any of these configurations, they will only take place if you rebuild the containers and their respective volumes. This includes removing the persisted volumes under /```home/<LOGIN>/data/```.
 

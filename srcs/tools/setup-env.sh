@@ -1,43 +1,64 @@
 #!/bin/bash
-# setup-secrets.sh
-# Initialize .env and all secret files for the Inception project
-# Customize the variables below to your liking before running the script
+# Initialize .env and secret files
+# Will interactively prompt for any missing required values
 
 set -e  # Exit on any error
 
-# ==================== CUSTOMIZE THESE VALUES ====================
-# Non-sensitive (for .env)
-LOGIN="${LOGIN:-tjorge-l}"
-DOMAIN_NAME="${DOMAIN_NAME:-tjorge-l.42.fr}"
+# ==================== Helper function to prompt if unset ====================
+prompt_if_unset() {
+    local var_name="$1"
+    local description="$2"
+    local value="${!var_name}"
+
+    if [[ -z "$value" ]]; then
+        echo -n "Please enter $description: "
+        read -r value
+        if [[ -z "$value" ]]; then
+            echo "Error: $description is required and cannot be empty." >&2
+            exit 1
+        fi
+    fi
+
+    # Export so it's available to the rest of the script
+    export "$var_name"="$value"
+}
+
+# ==================== Prompt for all required variables if not set ====================
+
+echo "Checking required configuration..."
+
+# Non-sensitive (.env)
+prompt_if_unset LOGIN               "login (e.g., your 42 login)"
+prompt_if_unset DOMAIN_NAME         "domain name (e.g., yourlogin.42.fr)"
 
 # MariaDB
-MYSQL_DATABASE="${MYSQL_DATABASE:-inception_db}"
-MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-even_longer_root_password_42}"
-MYSQL_USER="${MYSQL_USER:-wp_user}"
-MYSQL_PASSWORD="${MYSQL_PASSWORD:-this_is_a_very_long_password_42}"
-MYSQL_EMAIL="${MYSQL_EMAIL:-tjorge-l@gmail.com}"
+prompt_if_unset MYSQL_DATABASE      "MariaDB database name"
+prompt_if_unset MYSQL_ROOT_PASSWORD "MariaDB root password"
+prompt_if_unset MYSQL_USER          "MariaDB WordPress user"
+prompt_if_unset MYSQL_PASSWORD      "MariaDB WordPress user password"
+prompt_if_unset MYSQL_EMAIL         "WordPress admin email"
 
 # WordPress secondary user
-WP_SECONDARY_USER="${WP_SECONDARY_USER:-commenter}"
-WP_SECONDARY_USER_EMAIL="${WP_SECONDARY_USER_EMAIL:-commenter@example.com}"
-WP_SECONDARY_USER_PASSWORD="${WP_SECONDARY_USER_PASSWORD:-another_secure_pass456}"
+prompt_if_unset WP_SECONDARY_USER           "WordPress secondary username"
+prompt_if_unset WP_SECONDARY_USER_EMAIL     "WordPress secondary user email"
+prompt_if_unset WP_SECONDARY_USER_PASSWORD  "WordPress secondary user password"
 
 # FTP
-FTP_USER="${FTP_USER:-ftpuser}"
-FTP_PASS="${FTP_PASS:-strongpasswordhere}"
+prompt_if_unset FTP_USER     "FTP username"
+prompt_if_unset FTP_PASS     "FTP password"
 
 # Portainer
-PORTAINER_ADMIN_PASSWORD="${PORTAINER_ADMIN_PASSWORD:-YourSecurePassword123!}"
-# ================================================================
+prompt_if_unset PORTAINER_ADMIN_PASSWORD "Portainer admin password"
 
-# Paths
+# ==================== Paths ====================
 ENV_FILE="./srcs/.env"
 SECRETS_DIR="./secrets"
 
+echo ""
 echo "Creating secrets directory..."
 mkdir -p "$SECRETS_DIR"
 
-echo "Creating $ENV_FILE..."
+echo "Creating/updating $ENV_FILE..."
 cat > "$ENV_FILE" << EOF
 LOGIN=$LOGIN
 DOMAIN_NAME=$DOMAIN_NAME
@@ -45,14 +66,13 @@ HOSTS_FILE="/etc/hosts"
 TEMP_FILE="/tmp/hosts.tmp"
 EOF
 
-echo "Creating secret files in $SECRETS_DIR..."
+echo "Creating secret files in $SECRETS_DIR (skipping if already exist)..."
 
 write_secret() {
     local name="$1"
     local value="$2"
     local file="$SECRETS_DIR/${name}.txt"
 
-    # Only create if it doesn't already exist (preserves custom changes)
     if [ ! -f "$file" ]; then
         echo -n "$value" > "$file"
         echo "  → ${name}.txt created"
@@ -85,7 +105,5 @@ echo "Setup complete!"
 echo "  • $ENV_FILE created/updated"
 echo "  • Secret files created in $SECRETS_DIR/ (existing files preserved)"
 echo ""
-echo "Tip: You can override any value by exporting the variable before running:"
-echo "  Example:"
-echo "    export MYSQL_ROOT_PASSWORD=\"my_strong_password123\""
-echo "    ./setup-secrets.sh"
+echo "You can re-run this script anytime. Missing values will be prompted again,"
+echo "and existing secret files will not be overwritten."
