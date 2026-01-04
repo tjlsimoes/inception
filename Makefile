@@ -29,7 +29,17 @@ fclean: clean
 	docker system prune -af --volumes
 	echo "To clean up /etc/hosts entries, run: sudo srcs/tools/cleanup-hosts.sh"
 
+reset-credentials:
+	@printf "\n\033[1;31mWarning:\033[0m This will delete ./secrets/ and the ./srcs/.env \n\n"
+	@read -r -p "Continue? (y/N): " confirm; \
+	[ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ] || (echo "Cancelled."; exit 1); \
+	rm -rf ./secrets ./srcs/.env; \
+	echo "All secrets and .env removed."
+
 reset-data:
+	@printf "\n\033[1;31mWarning:\033[0m This will delete /home/$(LOGIN)/data/* \n\n"
+	@read -r -p "Continue? (y/N): " confirm; \
+	[ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ] || (echo "Cancelled."; exit 1); \
 	sudo rm -rf /home/$(LOGIN)/data/*
 
-.PHONY: all up down re clean fclean
+.PHONY: all up down re clean fclean reset-credentials reset-data

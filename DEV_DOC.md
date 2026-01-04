@@ -40,11 +40,18 @@
 
 [Here](https://common-pansy-255.notion.site/Inception-Services-2d7d125662db801699dbe06217f7a5ba?pvs=74)!
 
-### Are there any Docker commands that I would be better off knowing?
+### Are there any Docker commands or Makefile ruls that I would be better off knowing?
+
+
+```make setup-env```
+- Adds the necessary .env and secrets' files from environment variables or through user prompting.
+
+---
 
 To access a container's bash shell: ```docker exec -it <container_name> bash ```
 
 To check the logs of a container: ```docker logs <container_name>```  
+
 ---
 
 ```docker compose -f srcs/docker-compose.yml up -d --build```, part of ```make up```:
@@ -77,8 +84,8 @@ To check the logs of a container: ```docker logs <container_name>```
 
 ---
 
-```make setup-env```
-- Adds the necessary .env and secrets' files from environment variables or default values.
+```make reset-credentials```
+- Deletes the existing credentials and environment variables stored within ```secrets/``` and ```srcs/.env```.
 
 ---
 
